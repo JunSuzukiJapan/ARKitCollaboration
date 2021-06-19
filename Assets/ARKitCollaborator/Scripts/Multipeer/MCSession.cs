@@ -8,6 +8,7 @@ namespace Unity.iOS.Multipeer
     public class MCSession : IDisposable, IEquatable<MCSession>
     {
         IntPtr m_Ptr;
+        GCHandle m_GCHandleForOnChangePeerState;
 
         public bool Created => m_Ptr != IntPtr.Zero;
 
@@ -79,9 +80,9 @@ namespace Unity.iOS.Multipeer
             using (var serviceType_NSString = new NSString(serviceType))
             {
                 // コールバック関数をGCされないようにAllocしてハンドルを取得する。
-                IntPtr gcHandle = (IntPtr)GCHandle.Alloc(OnChangePeerState, GCHandleType.Normal);
+                m_GCHandleForOnChangePeerState = GCHandle.Alloc(OnChangePeerState, GCHandleType.Normal);
 
-                m_Ptr = InitWithName(peerName_NSString, serviceType_NSString, gcHandle, DidChangePeerState);
+                m_Ptr = InitWithName(peerName_NSString, serviceType_NSString, (IntPtr)m_GCHandleForOnChangePeerState, DidChangePeerState);
             }
 
             // if(s_Instance != null){
@@ -119,9 +120,9 @@ namespace Unity.iOS.Multipeer
         public int ConnectedPeerCount => GetConnectedPeerCount(this);
 
         public void Dispose(){
-            // if(this == s_Instance){
-            //     s_Instance = null;
-            // }
+            if(m_GCHandleForOnChangePeerState.IsAllocated){
+                m_GCHandleForOnChangePeerState.Free();
+            }
             NativeApi.CFRelease(ref m_Ptr);
         }
 

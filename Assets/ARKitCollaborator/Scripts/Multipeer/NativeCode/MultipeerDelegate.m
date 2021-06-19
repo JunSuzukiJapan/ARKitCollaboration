@@ -125,7 +125,9 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
 }
 
 - (void)session:(nonnull MCSession *)session peer:(nonnull MCPeerID *)peerID didChangeState:(MCSessionState)state {
-    // Not used.
+    if(m_didChangePeerStateHandler != nil && m_didChangePeerStateHandlerCaller != nil){
+        (m_didChangePeerStateHandlerCaller)(state, m_didChangePeerStateHandler);
+    }
 }
 
 - (void)advertiser:(nonnull MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(nonnull MCPeerID *)peerID withContext:(nullable NSData *)context invitationHandler:(nonnull void (^)(BOOL, MCSession * _Nullable))invitationHandler

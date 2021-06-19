@@ -1,6 +1,6 @@
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 
-typedef void (*DidChangePeerStateHandlerCaller)(MCSessionState state);
+typedef void (*DidChangePeerStateHandlerCaller)(MCSessionState state, void* methodHandle);
 
 @interface MultipeerDelegate : NSObject<MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate>
 
