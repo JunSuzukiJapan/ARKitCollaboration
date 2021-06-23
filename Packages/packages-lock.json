@@ -117,6 +117,16 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.xr.arkit-face-tracking": {
+      "version": "4.1.7",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.xr.arkit": "4.1.7",
+        "com.unity.xr.arsubsystems": "4.1.7"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.xr.arsubsystems": {
       "version": "4.1.7",
       "depth": 1,
