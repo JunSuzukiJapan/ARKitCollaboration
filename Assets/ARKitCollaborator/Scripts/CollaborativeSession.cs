@@ -66,7 +66,11 @@ namespace ARKitCollaborator
         void Awake()
         {
             m_ARSession = GetComponent<ARSession>();
-            m_MCSession = new MCSession(SystemInfo.deviceName, m_ServiceType);
+            m_MCSession = new MCSession(SystemInfo.deviceName, m_ServiceType, DidChangePeerState);
+        }
+
+        void DidChangePeerState(MCSessionState state){
+
         }
 
         void OnDisable()

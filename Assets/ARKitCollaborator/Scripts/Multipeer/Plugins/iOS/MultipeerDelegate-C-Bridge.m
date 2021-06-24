@@ -24,10 +24,12 @@ ManagedNSError UnityMC_Delegate_sendToAllPeers(void* self, void* nsdata, int len
 
 int UnityMC_Delegate_receivedDataQueueSize(void* self)
 {
+    NSLog(@"call receivedDataQueueSize. self: %p", self);
     if (self == NULL)
         return 0;
 
     MultipeerDelegate* delegate = (__bridge MultipeerDelegate*)self;
+    NSLog(@"delegate = %p", delegate);
     return (int)delegate.queueSize;
 }
 
@@ -40,6 +42,7 @@ void* UnityMC_Delegate_dequeueReceivedData(void* self)
 int UnityMC_Delegate_connectedPeerCount(void* self)
 {
     MultipeerDelegate* delegate = (__bridge MultipeerDelegate*)self;
+    NSLog(@"delegate = %p", delegate);
     return (int)delegate.connectedPeerCount;
 }
 

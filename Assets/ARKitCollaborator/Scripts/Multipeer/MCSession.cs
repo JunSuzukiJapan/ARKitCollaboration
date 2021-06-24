@@ -3,20 +3,20 @@ using System.Runtime.InteropServices;
 
 namespace Unity.iOS.Multipeer
 {
-    // [StructLayout(LayoutKind.Sequential)]
-    // public struct MCSession : IDisposable, IEquatable<MCSession>
-    public class MCSession : IDisposable, IEquatable<MCSession>
+    public enum MCSessionState: int {
+        NotConnected,
+        Connecting,
+        Connected,
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MCSession : IDisposable, IEquatable<MCSession>
+    // public class MCSession : IDisposable, IEquatable<MCSession>
     {
         IntPtr m_Ptr;
         GCHandle m_GCHandleForOnChangePeerState;
 
         public bool Created => m_Ptr != IntPtr.Zero;
-
-        public enum MCSessionState: int {
-            NotConnected,
-            Connecting,
-            Connected,
-        }
 
         public delegate void DidReceiveDataHandler();
         public delegate void DidChangePeerStateHandler(MCSessionState state);
@@ -27,14 +27,14 @@ namespace Unity.iOS.Multipeer
         public delegate void DidFinishReceivingResourceWithNameHandler();
         public delegate void DidReceiveStreamHandler();
 
-        public DidReceiveDataHandler OnReceiveData;
-        public DidChangePeerStateHandler OnChangePeerState;
-        public DidReceiveInvitationFromPeerHandler OnReceiveInvitationFromPeer;
-        public FoundPeerHandler OnFoundPeer;
-        public LostPeerHandler OnLostPeer;
-        public DidStartReceivingResourceWithNameHandler OnStartReceivingResource;
-        public DidFinishReceivingResourceWithNameHandler OnFinishReceiveingResource;
-        public DidReceiveStreamHandler OnReceiveStream;
+        // public DidReceiveDataHandler OnReceiveData;
+        // public DidChangePeerStateHandler OnChangePeerState;
+        // public DidReceiveInvitationFromPeerHandler OnReceiveInvitationFromPeer;
+        // public FoundPeerHandler OnFoundPeer;
+        // public LostPeerHandler OnLostPeer;
+        // public DidStartReceivingResourceWithNameHandler OnStartReceivingResource;
+        // public DidFinishReceivingResourceWithNameHandler OnFinishReceiveingResource;
+        // public DidReceiveStreamHandler OnReceiveStream;
 
         public delegate void DidChangePeerStateHandlerCaller(MCSessionState state, IntPtr methodHandle);
         // [DllImport("__Internal")]
@@ -68,7 +68,7 @@ namespace Unity.iOS.Multipeer
             }
         }
 
-        public MCSession(string peerName, string serviceType)
+        public MCSession(string peerName, string serviceType, DidChangePeerStateHandler peerStateHandler)
         {
             if (peerName == null)
                 throw new ArgumentNullException(nameof(peerName));
@@ -76,20 +76,23 @@ namespace Unity.iOS.Multipeer
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
+            // OnReceiveData = () => {};
+            // OnChangePeerState = peerStateHandler;
+            // OnReceiveInvitationFromPeer = () => {};
+            // OnFoundPeer = () => {};
+            // OnLostPeer = () => {};
+            // OnStartReceivingResource = () => {};
+            // OnFinishReceiveingResource = () => {};
+            // OnReceiveStream = () => {};
+
             using (var peerName_NSString = new NSString(peerName))
             using (var serviceType_NSString = new NSString(serviceType))
             {
                 // コールバック関数をGCされないようにAllocしてハンドルを取得する。
-                m_GCHandleForOnChangePeerState = GCHandle.Alloc(OnChangePeerState, GCHandleType.Normal);
+                m_GCHandleForOnChangePeerState = GCHandle.Alloc(peerStateHandler, GCHandleType.Normal);
 
                 m_Ptr = InitWithName(peerName_NSString, serviceType_NSString, (IntPtr)m_GCHandleForOnChangePeerState, DidChangePeerState);
             }
-
-            // if(s_Instance != null){
-            //     throw new InvalidOperationException($"The {typeof(MCSession).Name} has already created.");
-            // }
-
-            // s_Instance = this;
         }
 
         public void SendToAllPeers(NSData data, MCSessionSendDataMode mode)
