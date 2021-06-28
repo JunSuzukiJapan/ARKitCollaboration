@@ -70,7 +70,7 @@ namespace ARKitCollaborator
         }
 
         void DidChangePeerState(MCSessionState state){
-
+            Debug.LogFormat("call DidChangePeerState. state: {0}", state);
         }
 
         void OnDisable()

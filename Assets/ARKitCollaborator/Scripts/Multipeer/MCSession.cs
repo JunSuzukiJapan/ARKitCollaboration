@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace Unity.iOS.Multipeer
 {
@@ -14,7 +15,7 @@ namespace Unity.iOS.Multipeer
     // public class MCSession : IDisposable, IEquatable<MCSession>
     {
         IntPtr m_Ptr;
-        GCHandle m_GCHandleForOnChangePeerState;
+        private static GCHandle m_GCHandleForOnChangePeerState;
 
         public bool Created => m_Ptr != IntPtr.Zero;
 
@@ -27,28 +28,24 @@ namespace Unity.iOS.Multipeer
         public delegate void DidFinishReceivingResourceWithNameHandler();
         public delegate void DidReceiveStreamHandler();
 
-        // public DidReceiveDataHandler OnReceiveData;
-        // public DidChangePeerStateHandler OnChangePeerState;
-        // public DidReceiveInvitationFromPeerHandler OnReceiveInvitationFromPeer;
-        // public FoundPeerHandler OnFoundPeer;
-        // public LostPeerHandler OnLostPeer;
-        // public DidStartReceivingResourceWithNameHandler OnStartReceivingResource;
-        // public DidFinishReceivingResourceWithNameHandler OnFinishReceiveingResource;
-        // public DidReceiveStreamHandler OnReceiveStream;
-
-        public delegate void DidChangePeerStateHandlerCaller(MCSessionState state, IntPtr methodHandle);
+        public delegate void DidChangePeerStateHandlerCaller(MCSessionState state);
         // [DllImport("__Internal")]
         // private static extern void _Call_DidChangePeerStateHandlerCaller (MCSessionState state, IntPtr methodHandle, DidChangePeerStateHandlerCaller caller);
 
         [AOT.MonoPInvokeCallbackAttribute(typeof(DidChangePeerStateHandlerCaller))]
-        public static void DidChangePeerState(MCSessionState state, IntPtr methodHandle){
+        public static void S_DidChangePeerState(MCSessionState state){
+            Debug.Log("static DidChangePeerState");
+            if( ! m_GCHandleForOnChangePeerState.IsAllocated) return;
+
             // methodHandleからコールバック関数を取り出す。
-            GCHandle handle = (GCHandle)methodHandle;
+            GCHandle handle = (GCHandle)m_GCHandleForOnChangePeerState;
             DidChangePeerStateHandler callback = handle.Target as DidChangePeerStateHandler;
             // // 不要になったハンドルを解放する。
             // handle.Free();
 
+            Debug.Log("  call callback in DidChangePeerState");
             callback(state);
+            Debug.Log("  end call callback in DidChangePeerState");
         }
 
         public bool Enabled
@@ -76,23 +73,26 @@ namespace Unity.iOS.Multipeer
             if (serviceType == null)
                 throw new ArgumentNullException(nameof(serviceType));
 
-            // OnReceiveData = () => {};
-            // OnChangePeerState = peerStateHandler;
-            // OnReceiveInvitationFromPeer = () => {};
-            // OnFoundPeer = () => {};
-            // OnLostPeer = () => {};
-            // OnStartReceivingResource = () => {};
-            // OnFinishReceiveingResource = () => {};
-            // OnReceiveStream = () => {};
-
             using (var peerName_NSString = new NSString(peerName))
             using (var serviceType_NSString = new NSString(serviceType))
             {
+                if(m_GCHandleForOnChangePeerState.IsAllocated){
+                    m_GCHandleForOnChangePeerState.Free();
+                }
                 // コールバック関数をGCされないようにAllocしてハンドルを取得する。
                 m_GCHandleForOnChangePeerState = GCHandle.Alloc(peerStateHandler, GCHandleType.Normal);
 
-                m_Ptr = InitWithName(peerName_NSString, serviceType_NSString, (IntPtr)m_GCHandleForOnChangePeerState, DidChangePeerState);
+                // Debug.LogFormat("S_DidChangePeerState: {0}", S_DidChangePeerState);
+                m_Ptr = InitWithName(peerName_NSString, serviceType_NSString, S_DidChangePeerState);
             }
+        }
+
+        public void Dispose(){
+            Debug.LogFormat("MCSession disposed.");
+            if(m_GCHandleForOnChangePeerState.IsAllocated){
+                m_GCHandleForOnChangePeerState.Free();
+            }
+            NativeApi.CFRelease(ref m_Ptr);
         }
 
         public void SendToAllPeers(NSData data, MCSessionSendDataMode mode)
@@ -122,13 +122,6 @@ namespace Unity.iOS.Multipeer
 
         public int ConnectedPeerCount => GetConnectedPeerCount(this);
 
-        public void Dispose(){
-            if(m_GCHandleForOnChangePeerState.IsAllocated){
-                m_GCHandleForOnChangePeerState.Free();
-            }
-            NativeApi.CFRelease(ref m_Ptr);
-        }
-
         public override int GetHashCode() => m_Ptr.GetHashCode();
         public override bool Equals(object obj) => (obj is MCSession) && Equals((MCSession)obj);
         public bool Equals(MCSession other) => m_Ptr == other.m_Ptr;
@@ -140,7 +133,6 @@ namespace Unity.iOS.Multipeer
 
         [DllImport("__Internal", EntryPoint="UnityMC_Delegate_initWithName")]
         static extern IntPtr InitWithName(NSString name, NSString serviceType,
-                                          IntPtr didChangePeerStateHandler,
                                           DidChangePeerStateHandlerCaller didChangePeerStateHandlerCaller
         );
 

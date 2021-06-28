@@ -9,11 +9,9 @@ MCNearbyServiceAdvertiser* m_ServiceAdvertiser;
 MCNearbyServiceBrowser* m_ServiceBrowser;
 BOOL m_Enabled;
 
-void* m_didChangePeerStateHandler;
 DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
 
 - (instancetype)initWithName:(nonnull NSString *)name serviceType:(nonnull NSString *)serviceType
-                                        didChangePeerStateHandler:(void*)didChangePeerStateHandler
                                   didChangePeerStateHandlerCaller:(DidChangePeerStateHandlerCaller)didChangePeerStateHandlerCaller
 {
     if (self = [super init])
@@ -26,6 +24,7 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
                                encryptionPreference:MCEncryptionRequired];
         m_Session.delegate = self;
 
+        NSLog(@"serviceType: %@", serviceType);
         m_ServiceAdvertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:m_PeerID
                                                                 discoveryInfo:nil
                                                                   serviceType:serviceType];
@@ -35,8 +34,9 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
                                                             serviceType:serviceType];
         m_ServiceBrowser.delegate = self;
 
-        m_didChangePeerStateHandler = didChangePeerStateHandler;
         m_didChangePeerStateHandlerCaller = didChangePeerStateHandlerCaller;
+
+        NSLog(@"initWithName... caller: %p", m_didChangePeerStateHandlerCaller);
     }
 
     return self;
@@ -125,8 +125,11 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
 }
 
 - (void)session:(nonnull MCSession *)session peer:(nonnull MCPeerID *)peerID didChangeState:(MCSessionState)state {
-    if(m_didChangePeerStateHandler != nil && m_didChangePeerStateHandlerCaller != nil){
-        (m_didChangePeerStateHandlerCaller)(state, m_didChangePeerStateHandler);
+    NSLog(@"sessin:peer:didChangeState:%ld", (long)state);
+    if(m_didChangePeerStateHandlerCaller != nil){
+        NSLog(@"call m_didChangePeerStateHandlerCaller. %p", m_didChangePeerStateHandlerCaller);
+        (m_didChangePeerStateHandlerCaller)(state);
+        NSLog(@"return from m_didChangePeerStateHandlerCaller");
     }
 }
 

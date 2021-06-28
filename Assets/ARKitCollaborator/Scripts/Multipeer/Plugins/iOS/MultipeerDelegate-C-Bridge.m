@@ -9,7 +9,6 @@ ManagedMultipeerDelegate UnityMC_Delegate_initWithName(void* name, void* service
 {
     MultipeerDelegate* delegate = [[MultipeerDelegate alloc] initWithName:(__bridge NSString*)name
                                                               serviceType:(__bridge NSString*)serviceType
-                                                didChangePeerStateHandler:didChangePeerStateHandler
                                           didChangePeerStateHandlerCaller:didChangePeerStateHandlerCaller];
     return (__bridge_retained void*)delegate;
 }
@@ -24,12 +23,10 @@ ManagedNSError UnityMC_Delegate_sendToAllPeers(void* self, void* nsdata, int len
 
 int UnityMC_Delegate_receivedDataQueueSize(void* self)
 {
-    NSLog(@"call receivedDataQueueSize. self: %p", self);
     if (self == NULL)
         return 0;
 
     MultipeerDelegate* delegate = (__bridge MultipeerDelegate*)self;
-    NSLog(@"delegate = %p", delegate);
     return (int)delegate.queueSize;
 }
 
@@ -42,7 +39,6 @@ void* UnityMC_Delegate_dequeueReceivedData(void* self)
 int UnityMC_Delegate_connectedPeerCount(void* self)
 {
     MultipeerDelegate* delegate = (__bridge MultipeerDelegate*)self;
-    NSLog(@"delegate = %p", delegate);
     return (int)delegate.connectedPeerCount;
 }
 

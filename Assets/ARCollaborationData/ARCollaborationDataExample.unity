@@ -898,7 +898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf7087e7a636940248393aee88e39891, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ServiceType: arf-collab-demo
+  m_ServiceType: ar-collaborator
 --- !u!1 &1564081113
 GameObject:
   m_ObjectHideFlags: 0
