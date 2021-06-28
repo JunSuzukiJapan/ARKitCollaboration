@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UnityEngine.XR.ARFoundation.Samples
+namespace ARKitCollaborator
 {
     public class CollaborationNetworkingIndicator : MonoBehaviour
     {

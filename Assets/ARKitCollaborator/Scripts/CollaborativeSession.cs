@@ -66,11 +66,7 @@ namespace ARKitCollaborator
         void Awake()
         {
             m_ARSession = GetComponent<ARSession>();
-            m_MCSession = new MCSession(SystemInfo.deviceName, m_ServiceType, DidChangePeerState);
-        }
-
-        void DidChangePeerState(MCSessionState state){
-            Debug.LogFormat("call DidChangePeerState. state: {0}", state);
+            m_MCSession = new MCSession(SystemInfo.deviceName, m_ServiceType);
         }
 
         void OnDisable()
@@ -93,7 +89,7 @@ namespace ARKitCollaborator
             {
                 using (var collaborationData = subsystem.DequeueCollaborationData())
                 {
-                    // CollaborationNetworkingIndicator.NotifyHasCollaborationData();
+                    CollaborationNetworkingIndicator.NotifyHasCollaborationData();
 
                     if (m_MCSession.ConnectedPeerCount == 0)
                         continue;
@@ -105,7 +101,7 @@ namespace ARKitCollaborator
                             ? MCSessionSendDataMode.Reliable
                             : MCSessionSendDataMode.Unreliable);
 
-                        // CollaborationNetworkingIndicator.NotifyOutgoingDataSent();
+                        CollaborationNetworkingIndicator.NotifyOutgoingDataSent();
 
                         // Only log 'critical' data as 'optional' data tends to come every frame
                         if (collaborationData.priority == ARCollaborationDataPriority.Critical)

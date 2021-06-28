@@ -4,49 +4,13 @@ using UnityEngine;
 
 namespace Unity.iOS.Multipeer
 {
-    public enum MCSessionState: int {
-        NotConnected,
-        Connecting,
-        Connected,
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct MCSession : IDisposable, IEquatable<MCSession>
-    // public class MCSession : IDisposable, IEquatable<MCSession>
     {
         IntPtr m_Ptr;
         private static GCHandle m_GCHandleForOnChangePeerState;
 
         public bool Created => m_Ptr != IntPtr.Zero;
-
-        public delegate void DidReceiveDataHandler();
-        public delegate void DidChangePeerStateHandler(MCSessionState state);
-        public delegate void DidReceiveInvitationFromPeerHandler();
-        public delegate void FoundPeerHandler();
-        public delegate void LostPeerHandler();
-        public delegate void DidStartReceivingResourceWithNameHandler();
-        public delegate void DidFinishReceivingResourceWithNameHandler();
-        public delegate void DidReceiveStreamHandler();
-
-        public delegate void DidChangePeerStateHandlerCaller(MCSessionState state);
-        // [DllImport("__Internal")]
-        // private static extern void _Call_DidChangePeerStateHandlerCaller (MCSessionState state, IntPtr methodHandle, DidChangePeerStateHandlerCaller caller);
-
-        [AOT.MonoPInvokeCallbackAttribute(typeof(DidChangePeerStateHandlerCaller))]
-        public static void S_DidChangePeerState(MCSessionState state){
-            Debug.Log("static DidChangePeerState");
-            if( ! m_GCHandleForOnChangePeerState.IsAllocated) return;
-
-            // methodHandleからコールバック関数を取り出す。
-            GCHandle handle = (GCHandle)m_GCHandleForOnChangePeerState;
-            DidChangePeerStateHandler callback = handle.Target as DidChangePeerStateHandler;
-            // // 不要になったハンドルを解放する。
-            // handle.Free();
-
-            Debug.Log("  call callback in DidChangePeerState");
-            callback(state);
-            Debug.Log("  end call callback in DidChangePeerState");
-        }
 
         public bool Enabled
         {
@@ -65,7 +29,7 @@ namespace Unity.iOS.Multipeer
             }
         }
 
-        public MCSession(string peerName, string serviceType, DidChangePeerStateHandler peerStateHandler)
+        public MCSession(string peerName, string serviceType)
         {
             if (peerName == null)
                 throw new ArgumentNullException(nameof(peerName));
@@ -76,22 +40,11 @@ namespace Unity.iOS.Multipeer
             using (var peerName_NSString = new NSString(peerName))
             using (var serviceType_NSString = new NSString(serviceType))
             {
-                if(m_GCHandleForOnChangePeerState.IsAllocated){
-                    m_GCHandleForOnChangePeerState.Free();
-                }
-                // コールバック関数をGCされないようにAllocしてハンドルを取得する。
-                m_GCHandleForOnChangePeerState = GCHandle.Alloc(peerStateHandler, GCHandleType.Normal);
-
-                // Debug.LogFormat("S_DidChangePeerState: {0}", S_DidChangePeerState);
-                m_Ptr = InitWithName(peerName_NSString, serviceType_NSString, S_DidChangePeerState);
+                m_Ptr = InitWithName(peerName_NSString, serviceType_NSString);
             }
         }
 
         public void Dispose(){
-            Debug.LogFormat("MCSession disposed.");
-            if(m_GCHandleForOnChangePeerState.IsAllocated){
-                m_GCHandleForOnChangePeerState.Free();
-            }
             NativeApi.CFRelease(ref m_Ptr);
         }
 
@@ -132,9 +85,7 @@ namespace Unity.iOS.Multipeer
         static extern NSError SendToAllPeers(MCSession self, NSData data, MCSessionSendDataMode mode);
 
         [DllImport("__Internal", EntryPoint="UnityMC_Delegate_initWithName")]
-        static extern IntPtr InitWithName(NSString name, NSString serviceType,
-                                          DidChangePeerStateHandlerCaller didChangePeerStateHandlerCaller
-        );
+        static extern IntPtr InitWithName(NSString name, NSString serviceType);
 
         [DllImport("__Internal", EntryPoint="UnityMC_Delegate_receivedDataQueueSize")]
         static extern int GetReceivedDataQueueSize(MCSession self);

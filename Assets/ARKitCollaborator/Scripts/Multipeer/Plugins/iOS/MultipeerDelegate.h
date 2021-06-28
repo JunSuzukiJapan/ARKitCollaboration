@@ -4,8 +4,7 @@ typedef void (*DidChangePeerStateHandlerCaller)(MCSessionState state);
 
 @interface MultipeerDelegate : NSObject<MCSessionDelegate, MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate>
 
-- (nullable instancetype)initWithName:(nonnull NSString *)name serviceType:(nonnull NSString*)serviceType
-                                           didChangePeerStateHandlerCaller:(DidChangePeerStateHandlerCaller)didChangePeerStateHandlerCaller;
+- (nullable instancetype)initWithName:(nonnull NSString *)name serviceType:(nonnull NSString*)serviceType;
 - (nullable NSError*)sendToAllPeers:(nonnull NSData*)data withMode:(MCSessionSendDataMode)mode;
 - (NSUInteger)connectedPeerCount;
 - (NSUInteger)queueSize;

@@ -12,7 +12,6 @@ BOOL m_Enabled;
 DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
 
 - (instancetype)initWithName:(nonnull NSString *)name serviceType:(nonnull NSString *)serviceType
-                                  didChangePeerStateHandlerCaller:(DidChangePeerStateHandlerCaller)didChangePeerStateHandlerCaller
 {
     if (self = [super init])
     {
@@ -24,7 +23,6 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
                                encryptionPreference:MCEncryptionRequired];
         m_Session.delegate = self;
 
-        NSLog(@"serviceType: %@", serviceType);
         m_ServiceAdvertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:m_PeerID
                                                                 discoveryInfo:nil
                                                                   serviceType:serviceType];
@@ -33,10 +31,6 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
         m_ServiceBrowser = [[MCNearbyServiceBrowser alloc] initWithPeer:m_PeerID
                                                             serviceType:serviceType];
         m_ServiceBrowser.delegate = self;
-
-        m_didChangePeerStateHandlerCaller = didChangePeerStateHandlerCaller;
-
-        NSLog(@"initWithName... caller: %p", m_didChangePeerStateHandlerCaller);
     }
 
     return self;
@@ -125,12 +119,7 @@ DidChangePeerStateHandlerCaller m_didChangePeerStateHandlerCaller;
 }
 
 - (void)session:(nonnull MCSession *)session peer:(nonnull MCPeerID *)peerID didChangeState:(MCSessionState)state {
-    NSLog(@"sessin:peer:didChangeState:%ld", (long)state);
-    if(m_didChangePeerStateHandlerCaller != nil){
-        NSLog(@"call m_didChangePeerStateHandlerCaller. %p", m_didChangePeerStateHandlerCaller);
-        (m_didChangePeerStateHandlerCaller)(state);
-        NSLog(@"return from m_didChangePeerStateHandlerCaller");
-    }
+    // Not used.
 }
 
 - (void)advertiser:(nonnull MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(nonnull MCPeerID *)peerID withContext:(nullable NSData *)context invitationHandler:(nonnull void (^)(BOOL, MCSession * _Nullable))invitationHandler

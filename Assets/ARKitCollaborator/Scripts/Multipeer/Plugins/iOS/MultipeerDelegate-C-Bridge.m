@@ -8,8 +8,7 @@ ManagedMultipeerDelegate UnityMC_Delegate_initWithName(void* name, void* service
     DidChangePeerStateHandlerCaller* didChangePeerStateHandlerCaller)
 {
     MultipeerDelegate* delegate = [[MultipeerDelegate alloc] initWithName:(__bridge NSString*)name
-                                                              serviceType:(__bridge NSString*)serviceType
-                                          didChangePeerStateHandlerCaller:didChangePeerStateHandlerCaller];
+                                                              serviceType:(__bridge NSString*)serviceType];
     return (__bridge_retained void*)delegate;
 }
 
