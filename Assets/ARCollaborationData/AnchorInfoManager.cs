@@ -61,6 +61,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (textManager)
             {
                 textManager.text = sessionId.Equals(session.subsystem.sessionId) ? "Local" : "Remote";
+                textManager.textID = anchor.trackableId.ToString();
             }
 
             var colorizer = anchor.GetComponent<Colorizer>();

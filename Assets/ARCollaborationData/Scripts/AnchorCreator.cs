@@ -11,21 +11,30 @@ namespace UnityEngine.XR.ARFoundation.Samples
         [SerializeField]
         GameObject m_Prefab;
 
+        [SerializeField]
+        Camera m_Camera;
+
+        ARAnchor m_Anchor;
+
         public GameObject prefab
         {
             get => m_Prefab;
             set => m_Prefab = value;
         }
 
-        public void RemoveAllAnchors()
-        {
-            Logger.Log($"Removing all anchors ({m_Anchors.Count})");
-            foreach (var anchor in m_Anchors)
-            {
-                Destroy(anchor.gameObject);
-            }
-            m_Anchors.Clear();
+        public ARAnchor MainAnchor {
+            get => m_Anchor;
         }
+
+        // public void RemoveAllAnchors()
+        // {
+        //     Logger.Log($"Removing all anchors ({m_Anchors.Count})");
+        //     foreach (var anchor in m_Anchors)
+        //     {
+        //         Destroy(anchor.gameObject);
+        //     }
+        //     m_Anchors.Clear();
+        // }
 
         void Awake()
         {
@@ -39,6 +48,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (canvasTextManager)
             {
                 canvasTextManager.text = text;
+                canvasTextManager.textID = anchor.trackableId.ToString();
             }
         }
 
@@ -82,12 +92,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void Update()
         {
-            if (Input.touchCount == 0)
-                return;
-
-            var touch = Input.GetTouch(0);
-            if (touch.phase != TouchPhase.Began)
-                return;
+            if(m_Anchor != null) return;
 
             // Raycast against planes and feature points
             const TrackableType trackableTypes =
@@ -95,21 +100,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 TrackableType.PlaneWithinPolygon;
 
             // Perform the raycast
-            if (m_RaycastManager.Raycast(touch.position, s_Hits, trackableTypes))
+            var centerPosition = new Vector3(m_Camera.transform.position.x, m_Camera.transform.position.y, 0);
+            if (m_RaycastManager.Raycast(centerPosition, s_Hits, trackableTypes))
             {
                 // Raycast hits are sorted by distance, so the first one will be the closest hit.
                 var hit = s_Hits[0];
 
                 // Create a new anchor
-                var anchor = CreateAnchor(hit);
-                if (anchor)
+                m_Anchor = CreateAnchor(hit);
+                if (m_Anchor)
                 {
                     // Remember the anchor so we can remove it later.
-                    m_Anchors.Add(anchor);
-                }
-                else
-                {
-                    Logger.Log("Error creating anchor");
+                    m_Anchors.Add(m_Anchor);
                 }
             }
         }

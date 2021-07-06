@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/ARCollaborationData/ARCollaborationDataExample.unity
-    guid: 900e7bfe6122645fba71b90941afb9c5
+    path: Assets/ARKitCollaborator/Sample/ARKitCollaboratorSampleScene.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects:
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: be02cb68374094ab6b3811ec18fcb5d8, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 50516c93a0fd64dc1b4342cf0a298553, type: 2}

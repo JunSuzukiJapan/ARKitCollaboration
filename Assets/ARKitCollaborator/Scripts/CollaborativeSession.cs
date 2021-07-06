@@ -15,6 +15,9 @@ namespace ARKitCollaborator
         [Tooltip("The name for this network service. It should be 15 characters or less and can contain ASCII, lowercase letters, numbers, and hyphens.")]
         string m_ServiceType;
 
+        [SerializeField]
+        Spawner m_spawner;
+
         /// <summary>
         /// The name for this network service.
         /// See <a href="https://developer.apple.com/documentation/multipeerconnectivity/mcnearbyserviceadvertiser">MCNearbyServiceAdvertiser</a>
@@ -54,6 +57,8 @@ namespace ARKitCollaborator
 
     #if UNITY_IOS && !UNITY_EDITOR
         MCSession m_MCSession;
+
+        public MCSession Session { get {return m_MCSession; } }
 
         ARKitSessionSubsystem GetSubsystem()
         {
@@ -115,7 +120,7 @@ namespace ARKitCollaborator
             // Check for incoming data
             while (m_MCSession.ReceivedDataQueueSize > 0)
             {
-                // CollaborationNetworkingIndicator.NotifyIncomingDataReceived();
+                CollaborationNetworkingIndicator.NotifyIncomingDataReceived();
 
                 using (var data = m_MCSession.DequeueReceivedData())
                 using (var collaborationData = new ARCollaborationData(data.Bytes))
@@ -131,6 +136,10 @@ namespace ARKitCollaborator
                     else
                     {
                         Debug.Log($"Received {data.Bytes.Length} bytes from remote, but the collaboration data was not valid.");
+                        if(m_spawner != null){
+                            Debug.Log("call Spawner");
+                            m_spawner.SpawnReceivedData(data.Bytes);
+                        }
                     }
                 }
             }
