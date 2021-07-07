@@ -779,7 +779,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &935465591
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1720,6 +1720,7 @@ MonoBehaviour:
   m_RemoteCubePrefab: {fileID: 7879953453167802130, guid: ef7612422d0834fbea7dd98f778504f6, type: 3}
   m_spherePrefab: {fileID: 4976356065129875393, guid: 8e5498cb4858e415fad8224709f31edb, type: 3}
   m_CollaborativeSession: {fileID: 1297001905}
+  m_anchorManager: {fileID: 411184570}
   m_anchorCreator: {fileID: 411184569}
 --- !u!4 &1803126618
 Transform:

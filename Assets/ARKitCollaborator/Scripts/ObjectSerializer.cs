@@ -49,12 +49,14 @@ public class SerializedObjectData : IDisposable {
 
 public static class ObjectSerializer {
     public static SerializedObjectData Serialize(TrackableId parentId, ObjectType typ, Vector3 position, Quaternion rotation){
+        Debug.LogFormat("Serialize. trackableId: {0}", parentId);
         var bytes = MakeByteArray(parentId, typ, position, rotation);
+        Debug.LogFormat("data size: {0}", bytes.Length);
         return new SerializedObjectData(bytes);
     }
 
     public static ObjectData Deserialize(NativeSlice<byte> slice){
-        if(slice.Length != 48){
+        if(slice.Length != 49){
             throw new Exception("illegal data size.");
         }
 
@@ -132,7 +134,7 @@ public static class ObjectSerializer {
 
         Array.Copy(b_type,       0, bytes, 2, 2);
         Array.Copy(b_subId1,     0, bytes, 4, 8);
-        Array.Copy(b_subId1,     0, bytes, 4 + 8, 8);
+        Array.Copy(b_subId2,     0, bytes, 4 + 8, 8);
         Array.Copy(b_position_x, 0, bytes, 4 + 8 + 8, 4);
         Array.Copy(b_position_y, 0, bytes, 4 + 8 + 8 + 4, 4);
         Array.Copy(b_position_z, 0, bytes, 4 + 8 + 8 + 4 * 2, 4);

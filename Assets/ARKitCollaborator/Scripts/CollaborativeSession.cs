@@ -111,7 +111,7 @@ namespace ARKitCollaborator
                         // Only log 'critical' data as 'optional' data tends to come every frame
                         if (collaborationData.priority == ARCollaborationDataPriority.Critical)
                         {
-                            Debug.Log($"Sent {data.Length} bytes of collaboration data.");
+                            // Debug.Log($"Sent {data.Length} bytes of collaboration data.");
                         }
                     }
                 }
@@ -130,7 +130,7 @@ namespace ARKitCollaborator
                         subsystem.UpdateWithCollaborationData(collaborationData);
                         if (collaborationData.priority == ARCollaborationDataPriority.Critical)
                         {
-                            Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
+                            // Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
                         }
                     }
                     else
