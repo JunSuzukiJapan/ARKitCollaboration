@@ -79,6 +79,10 @@ public class Spawner : MonoBehaviour
         Debug.LogFormat("received bytes length: {0}", bytes.Length);
 
         ObjectData data = ObjectSerializer.Deserialize(bytes);
+        if(data == null){
+            Debug.LogFormat("Deserialized data is null.");
+            return;
+        }
         Debug.LogFormat("received data Parent: {0}", data.Id.ToString());
         Debug.LogFormat("received data Type: {0}, pos: {1}, rot: {2}", data.Type, data.Position, data.Rotation);
 

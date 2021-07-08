@@ -48,6 +48,10 @@ public class SerializedObjectData : IDisposable {
 }
 
 public static class ObjectSerializer {
+    private static byte[] AppId = {(byte)'D', (byte)'E', (byte)'M', (byte)'O'};
+    private static Int16 ProtocolMajorVersion = 1;
+    private static Int16 ProtocolMinorVersion = 0;
+
     public static SerializedObjectData Serialize(TrackableId parentId, ObjectType typ, Vector3 position, Quaternion rotation){
         Debug.LogFormat("Serialize. trackableId: {0}", parentId);
         var bytes = MakeByteArray(parentId, typ, position, rotation);
@@ -56,16 +60,34 @@ public static class ObjectSerializer {
     }
 
     public static ObjectData Deserialize(NativeSlice<byte> slice){
-        if(slice.Length != 48){
-            throw new Exception("illegal data size.");
+        if(slice.Length != 56){
+            throw new Exception($"illegal data size {slice.Length}.");
         }
 
         byte[] bytes = slice.ToArray();
-        byte checksum = bytes[1];
 
         //
-        // TODO: Check Checksum
+        // Check AppId
         //
+        if(bytes[0] != AppId[0] ||
+           bytes[1] != AppId[1] ||
+           bytes[2] != AppId[2] ||
+           bytes[3] != AppId[3])
+        {
+            Debug.LogFormat("unmatched AppId. {0},{1},{2},{3}", (char)bytes[0], (char)bytes[1], (char)bytes[2], (char)bytes[3]);
+            return null;
+        }
+
+        //
+        // Check Protocol Version
+        //
+        Debug.LogFormat("Protocol Major Version: {0}, Minor Version: {1}", BitConverter.ToInt16(bytes, 4), BitConverter.ToInt16(bytes, 6));
+
+        //
+        // Check Checksum
+        //
+        Debug.LogFormat("Checksum...  bytes[8]: {0}, bytes[9]: {1}", bytes[8], bytes[9]);
+        byte checksum = bytes[9];
         byte calcedChecksum = CalcChecksum(bytes);
 
         if(checksum != calcedChecksum){
@@ -73,19 +95,19 @@ public static class ObjectSerializer {
             return null;
         }
 
-        ObjectType typ = (ObjectType)BitConverter.ToInt16(bytes, 2);
+        ObjectType typ = (ObjectType)BitConverter.ToInt16(bytes, 10);
 
-        ulong id1 = BitConverter.ToUInt64(bytes, 4);
-        ulong id2 = BitConverter.ToUInt64(bytes, 4 + 8);
+        ulong id1 = BitConverter.ToUInt64(bytes, 12);
+        ulong id2 = BitConverter.ToUInt64(bytes, 12 + 8);
 
-        float pos_x = BitConverter.ToSingle(bytes, 4 + 8 + 8);
-        float pos_y = BitConverter.ToSingle(bytes, 4 + 8 + 8 + 4);
-        float pos_z = BitConverter.ToSingle(bytes, 4 + 8 + 8 + 4 * 2);
+        float pos_x = BitConverter.ToSingle(bytes, 12 + 8 + 8);
+        float pos_y = BitConverter.ToSingle(bytes, 12 + 8 + 8 + 4);
+        float pos_z = BitConverter.ToSingle(bytes, 12 + 8 + 8 + 4 * 2);
 
-        float rot_x = BitConverter.ToSingle(bytes, 4 + 8 + 8 + 4 * 3);
-        float rot_y = BitConverter.ToSingle(bytes, 4 + 8 + 8 + 4 * 4);
-        float rot_z = BitConverter.ToSingle(bytes, 4 + 8 + 8 + 4 * 5);
-        float rot_w = BitConverter.ToSingle(bytes, 4 + 8 + 8 + 4 * 6);
+        float rot_x = BitConverter.ToSingle(bytes, 12 + 8 + 8 + 4 * 3);
+        float rot_y = BitConverter.ToSingle(bytes, 12 + 8 + 8 + 4 * 4);
+        float rot_z = BitConverter.ToSingle(bytes, 12 + 8 + 8 + 4 * 5);
+        float rot_w = BitConverter.ToSingle(bytes, 12 + 8 + 8 + 4 * 6);
 
         TrackableId id = new TrackableId(id1, id2);
         Vector3 position = new Vector3(pos_x, pos_y, pos_z);
@@ -95,6 +117,9 @@ public static class ObjectSerializer {
     }
 
     private static byte[] MakeByteArray(TrackableId parentId, ObjectType typ, Vector3 position, Quaternion rotation){
+        byte[] b_majorVer   = BitConverter.GetBytes(ProtocolMajorVersion);
+        byte[] b_minorVer   = BitConverter.GetBytes(ProtocolMinorVersion);
+
         byte[] b_subId1     = BitConverter.GetBytes(parentId.subId1);
         byte[] b_subId2     = BitConverter.GetBytes(parentId.subId2);
 
@@ -108,8 +133,10 @@ public static class ObjectSerializer {
         byte[] b_rotation_z = BitConverter.GetBytes(rotation.z);
         byte[] b_rotation_w = BitConverter.GetBytes(rotation.w);
 
-        byte[] bytes = new byte[1 +
-                                1 +
+        byte[] bytes = new byte[AppId.Length +
+                                b_majorVer.Length +
+                                b_minorVer.Length +
+                                2 +
                                 b_subId1.Length +
                                 b_subId2.Length +
                                 b_type.Length +
@@ -121,35 +148,41 @@ public static class ObjectSerializer {
                                 b_rotation_z.Length +
                                 b_rotation_w.Length];
 
-        Debug.LogFormat("  subId1.Length = {0}", b_subId1.Length);
-        Debug.LogFormat("  subId2.Length = {0}", b_subId2.Length);
-        Debug.LogFormat("  type.Length = {0}", b_type.Length);         // 
-        Debug.LogFormat("  float Length = {0}", b_position_x.Length);  // 4
-        Debug.LogFormat("bytes.Length = {0}", bytes.Length);       // 32
+        Debug.LogFormat("bytes.Length = {0}", bytes.Length);
 
-        Array.Copy(b_type,       0, bytes, 2, 2);
-        Array.Copy(b_subId1,     0, bytes, 4, 8);
-        Array.Copy(b_subId2,     0, bytes, 4 + 8, 8);
-        Array.Copy(b_position_x, 0, bytes, 4 + 8 + 8, 4);
-        Array.Copy(b_position_y, 0, bytes, 4 + 8 + 8 + 4, 4);
-        Array.Copy(b_position_z, 0, bytes, 4 + 8 + 8 + 4 * 2, 4);
-        Array.Copy(b_rotation_x, 0, bytes, 4 + 8 + 8 + 4 * 3, 4);
-        Array.Copy(b_rotation_y, 0, bytes, 4 + 8 + 8 + 4 * 4, 4);
-        Array.Copy(b_rotation_z, 0, bytes, 4 + 8 + 8 + 4 * 5, 4);
-        Array.Copy(b_rotation_w, 0, bytes, 4 + 8 + 8 + 4 * 6, 4);
+        Array.Copy(AppId,        0, bytes, 0, 4);
+        Array.Copy(b_majorVer,   0, bytes, 4, 2);
+        Array.Copy(b_minorVer,   0, bytes, 6, 2);
 
-        bytes[0] = 0;
-        bytes[1] = CalcChecksum(bytes);
+        // a byte for nothing, a byte for checksum
+        // bytes[8] = 0;
+        // bytes[9] = CalcChecksum(bytes);
+
+        Array.Copy(b_type,       0, bytes, 10, 2);
+        Array.Copy(b_subId1,     0, bytes, 12, 8);
+        Array.Copy(b_subId2,     0, bytes, 12 + 8, 8);
+        Array.Copy(b_position_x, 0, bytes, 12 + 8 + 8, 4);
+        Array.Copy(b_position_y, 0, bytes, 12 + 8 + 8 + 4, 4);
+        Array.Copy(b_position_z, 0, bytes, 12 + 8 + 8 + 4 * 2, 4);
+        Array.Copy(b_rotation_x, 0, bytes, 12 + 8 + 8 + 4 * 3, 4);
+        Array.Copy(b_rotation_y, 0, bytes, 12 + 8 + 8 + 4 * 4, 4);
+        Array.Copy(b_rotation_z, 0, bytes, 12 + 8 + 8 + 4 * 5, 4);
+        Array.Copy(b_rotation_w, 0, bytes, 12 + 8 + 8 + 4 * 6, 4);
+
+        bytes[8] = 0;
+        bytes[9] = CalcChecksum(bytes);
 
         return bytes;
     }
 
     private static byte CalcChecksum(byte[] bytes){
+        Debug.LogFormat("CalcChecksum. bytes.Length = {0}", bytes.Length);
         byte checksum = 0;
 
-        for(int i = 2; i < bytes.Length; i++){
+        for(int i = 10; i < bytes.Length; i++){
             checksum += bytes[i];
         }
+        Debug.LogFormat(" calced checksum = {0}", checksum);
 
         return checksum;
     }
