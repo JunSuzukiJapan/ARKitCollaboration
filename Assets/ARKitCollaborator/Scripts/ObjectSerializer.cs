@@ -56,7 +56,7 @@ public static class ObjectSerializer {
     }
 
     public static ObjectData Deserialize(NativeSlice<byte> slice){
-        if(slice.Length != 49){
+        if(slice.Length != 48){
             throw new Exception("illegal data size.");
         }
 
@@ -95,10 +95,6 @@ public static class ObjectSerializer {
     }
 
     private static byte[] MakeByteArray(TrackableId parentId, ObjectType typ, Vector3 position, Quaternion rotation){
-        byte checksum = 0;
-
-        byte[] b_checksum   = BitConverter.GetBytes(checksum);
-
         byte[] b_subId1     = BitConverter.GetBytes(parentId.subId1);
         byte[] b_subId2     = BitConverter.GetBytes(parentId.subId2);
 
@@ -113,7 +109,7 @@ public static class ObjectSerializer {
         byte[] b_rotation_w = BitConverter.GetBytes(rotation.w);
 
         byte[] bytes = new byte[1 +
-                                b_checksum.Length +
+                                1 +
                                 b_subId1.Length +
                                 b_subId2.Length +
                                 b_type.Length +
@@ -125,7 +121,6 @@ public static class ObjectSerializer {
                                 b_rotation_z.Length +
                                 b_rotation_w.Length];
 
-        Debug.LogFormat("  checksum.Length = {0}", b_checksum.Length); // 
         Debug.LogFormat("  subId1.Length = {0}", b_subId1.Length);
         Debug.LogFormat("  subId2.Length = {0}", b_subId2.Length);
         Debug.LogFormat("  type.Length = {0}", b_type.Length);         // 
