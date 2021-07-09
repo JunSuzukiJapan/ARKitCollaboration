@@ -14,6 +14,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
         [SerializeField]
         Camera m_Camera;
 
+        [SerializeField]
+        float m_minDistance = 0.2f;
+
         ARAnchor m_Anchor;
 
         public GameObject prefab
@@ -105,6 +108,9 @@ namespace UnityEngine.XR.ARFoundation.Samples
             {
                 // Raycast hits are sorted by distance, so the first one will be the closest hit.
                 var hit = s_Hits[0];
+
+                Debug.LogFormat("hit.distance: {0}", hit.distance);
+                if(hit.distance <= m_minDistance) return;  // 端末からの距離が近すぎるアンカーは生成しない。
 
                 // Create a new anchor
                 m_Anchor = CreateAnchor(hit);

@@ -76,11 +76,11 @@ public class Spawner : MonoBehaviour
     }
 
     public bool TrySpawnReceivedData(NativeSlice<byte> bytes){
-        Debug.LogFormat("received bytes length: {0}", bytes.Length);
+        // Debug.LogFormat("received bytes length: {0}", bytes.Length);
 
         ObjectData data = ObjectSerializer.TryDeserialize(bytes);
         if(data == null){
-            Debug.LogFormat("Deserialized data is null.");
+            // Debug.LogFormat("Deserialized data is null.");
             return false;
         }
         Debug.LogFormat("received data Parent: {0}", data.Id.ToString());
