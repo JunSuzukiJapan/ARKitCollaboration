@@ -59,9 +59,10 @@ public static class ObjectSerializer {
         return new SerializedObjectData(bytes);
     }
 
-    public static ObjectData Deserialize(NativeSlice<byte> slice){
+    public static ObjectData TryDeserialize(NativeSlice<byte> slice){
         if(slice.Length != 56){
-            throw new Exception($"illegal data size {slice.Length}.");
+            // throw new Exception($"illegal data size {slice.Length}.");
+            return null;
         }
 
         byte[] bytes = slice.ToArray();

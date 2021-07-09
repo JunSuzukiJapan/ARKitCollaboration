@@ -75,13 +75,13 @@ public class Spawner : MonoBehaviour
 #endif
     }
 
-    public void SpawnReceivedData(NativeSlice<byte> bytes){
+    public bool TrySpawnReceivedData(NativeSlice<byte> bytes){
         Debug.LogFormat("received bytes length: {0}", bytes.Length);
 
-        ObjectData data = ObjectSerializer.Deserialize(bytes);
+        ObjectData data = ObjectSerializer.TryDeserialize(bytes);
         if(data == null){
             Debug.LogFormat("Deserialized data is null.");
-            return;
+            return false;
         }
         Debug.LogFormat("received data Parent: {0}", data.Id.ToString());
         Debug.LogFormat("received data Type: {0}, pos: {1}, rot: {2}", data.Type, data.Position, data.Rotation);
@@ -98,7 +98,7 @@ public class Spawner : MonoBehaviour
             }
         }
 
-        if(anchor == null) return;
+        if(anchor == null) return true;
 
         var globalPos = anchor.transform.TransformPoint(data.Position);
         var globalRot = anchor.transform.rotation * data.Rotation;
@@ -110,5 +110,7 @@ public class Spawner : MonoBehaviour
             Instantiate(m_RemoteCubePrefab, globalPos, globalRot);
             break;
         }
+
+        return true;
     }
 }

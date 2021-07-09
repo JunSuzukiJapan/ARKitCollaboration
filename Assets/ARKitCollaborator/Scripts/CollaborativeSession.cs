@@ -122,23 +122,22 @@ namespace ARKitCollaborator
             {
                 CollaborationNetworkingIndicator.NotifyIncomingDataReceived();
 
-                using (var data = m_MCSession.DequeueReceivedData())
-                using (var collaborationData = new ARCollaborationData(data.Bytes))
-                {
-                    if (collaborationData.valid)
-                    {
-                        subsystem.UpdateWithCollaborationData(collaborationData);
-                        if (collaborationData.priority == ARCollaborationDataPriority.Critical)
+                using (var data = m_MCSession.DequeueReceivedData()){
+                    if(m_spawner == null || (! m_spawner.TrySpawnReceivedData(data.Bytes))){
+                        using (var collaborationData = new ARCollaborationData(data.Bytes))
                         {
-                            // Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log($"Received {data.Bytes.Length} bytes from remote, but the collaboration data was not valid.");
-                        if(m_spawner != null){
-                            Debug.Log("call Spawner");
-                            m_spawner.SpawnReceivedData(data.Bytes);
+                            if (collaborationData.valid)
+                            {
+                                subsystem.UpdateWithCollaborationData(collaborationData);
+                                if (collaborationData.priority == ARCollaborationDataPriority.Critical)
+                                {
+                                    // Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
+                                }
+                            }
+                            else
+                            {
+                                // Debug.Log($"Received {data.Bytes.Length} bytes from remote, but the collaboration data was not valid.");
+                            }
                         }
                     }
                 }
