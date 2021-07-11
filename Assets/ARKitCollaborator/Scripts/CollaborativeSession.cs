@@ -34,7 +34,7 @@ namespace ARKitCollaborator
         void DisableNotSupported(string reason)
         {
             enabled = false;
-            // MyLogger.Log(reason);
+            // Debug.Log(reason);
             Debug.Log(reason);
         }
 

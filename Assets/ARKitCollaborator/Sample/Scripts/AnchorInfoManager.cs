@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 
-namespace UnityEngine.XR.ARFoundation.Samples
+namespace ARKitCollaborator.Samples
 {
     /// <summary>
     /// Displays information about each reference point including
@@ -61,10 +60,10 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (textManager)
             {
                 textManager.text = sessionId.Equals(session.subsystem.sessionId) ? "Local" : "Remote";
-                textManager.textID = anchor.trackableId.ToString();
             }
 
             var colorizer = anchor.GetComponent<Colorizer>();
+            Debug.LogFormat("colorizer: {0}", colorizer);
             if (colorizer)
             {
                 // Generate a color from the sessionId

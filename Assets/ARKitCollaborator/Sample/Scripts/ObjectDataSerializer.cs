@@ -47,7 +47,7 @@ public class SerializedObjectData : IDisposable {
     }
 }
 
-public static class ObjectSerializer {
+public static class ObjectDataSerializer {
     private static byte[] AppId = {(byte)'D', (byte)'E', (byte)'M', (byte)'O'};
     private static Int16 ProtocolMajorVersion = 1;
     private static Int16 ProtocolMinorVersion = 0;

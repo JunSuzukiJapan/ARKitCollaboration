@@ -1,20 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using ARKitCollaborator;
 using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
 
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.XR.ARFoundation.Samples;
 
 #if UNITY_IOS && !UNITY_EDITOR
 using Unity.iOS.Multipeer;
 using UnityEngine.XR.ARKit;
 #endif
-
-using ARKitCollaborator;
 
 public class Spawner : MonoBehaviour
 {
@@ -25,9 +20,6 @@ public class Spawner : MonoBehaviour
     private GameObject m_LocalCubePrefab;
     [SerializeField]
     private GameObject m_RemoteCubePrefab;
-
-    [SerializeField]
-    private GameObject m_spherePrefab;
 
     [SerializeField]
     private CollaborativeSession m_CollaborativeSession;
@@ -59,7 +51,7 @@ public class Spawner : MonoBehaviour
                 var localPos = anchor.transform.InverseTransformPoint(pos);
                 var localRot = rot * Quaternion.Inverse(anchor.transform.rotation);
 
-                SerializedObjectData serializedObjectData = ObjectSerializer.Serialize(anchor.trackableId, ObjectType.Cube, localPos, localRot);
+                SerializedObjectData serializedObjectData = ObjectDataSerializer.Serialize(anchor.trackableId, ObjectType.Cube, localPos, localRot);
                 Debug.LogFormat("serializedData: {0}", serializedObjectData);
                 NativeArray<byte> ary = serializedObjectData.GetNativeArray();
                 var data = NSData.CreateWithBytesNoCopy(ary);
@@ -78,7 +70,7 @@ public class Spawner : MonoBehaviour
     public bool TrySpawnReceivedData(NativeSlice<byte> bytes){
         // Debug.LogFormat("received bytes length: {0}", bytes.Length);
 
-        ObjectData data = ObjectSerializer.TryDeserialize(bytes);
+        ObjectData data = ObjectDataSerializer.TryDeserialize(bytes);
         if(data == null){
             // Debug.LogFormat("Deserialized data is null.");
             return false;

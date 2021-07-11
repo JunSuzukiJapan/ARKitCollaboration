@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UnityEngine.XR.ARFoundation.Samples
+namespace ARKitCollaborator.Samples
 {
     /// <summary>
     /// Sets the color of <see cref="renderer"/>.

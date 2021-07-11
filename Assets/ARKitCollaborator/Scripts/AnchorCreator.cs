@@ -2,7 +2,14 @@
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 
-namespace UnityEngine.XR.ARFoundation.Samples
+using UnityEngine.XR.ARFoundation;
+
+#if UNITY_IOS && !UNITY_EDITOR
+using Unity.iOS.Multipeer;
+using UnityEngine.XR.ARKit;
+#endif
+
+namespace ARKitCollaborator
 {
     [RequireComponent(typeof(ARAnchorManager))]
     [RequireComponent(typeof(ARRaycastManager))]
@@ -28,16 +35,6 @@ namespace UnityEngine.XR.ARFoundation.Samples
         public ARAnchor MainAnchor {
             get => m_Anchor;
         }
-
-        // public void RemoveAllAnchors()
-        // {
-        //     Logger.Log($"Removing all anchors ({m_Anchors.Count})");
-        //     foreach (var anchor in m_Anchors)
-        //     {
-        //         Destroy(anchor.gameObject);
-        //     }
-        //     m_Anchors.Clear();
-        // }
 
         void Awake()
         {
@@ -65,7 +62,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 var planeManager = GetComponent<ARPlaneManager>();
                 if (planeManager)
                 {
-                    Logger.Log("Creating anchor attachment.");
+                    Debug.Log("Creating anchor attachment.");
                     var oldPrefab = m_AnchorManager.anchorPrefab;
                     m_AnchorManager.anchorPrefab = prefab;
                     anchor = m_AnchorManager.AttachAnchor(plane, hit.pose);
@@ -76,7 +73,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
             }
 
             // Otherwise, just create a regular anchor at the hit pose
-            Logger.Log("Creating regular anchor.");
+            Debug.Log("Creating regular anchor.");
 
             // Note: the anchor can be anywhere in the scene hierarchy
             var gameObject = Instantiate(prefab, hit.pose.position, hit.pose.rotation);

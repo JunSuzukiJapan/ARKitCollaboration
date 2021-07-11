@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace UnityEngine.XR.ARFoundation.Samples
+using UnityEngine.XR.ARFoundation;
+
+namespace ARKitCollaborator
 {
     public class CanvasTextManager : MonoBehaviour
     {
