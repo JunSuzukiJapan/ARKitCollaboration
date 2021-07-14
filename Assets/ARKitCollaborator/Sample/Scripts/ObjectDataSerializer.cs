@@ -3,6 +3,8 @@ using UnityEngine;
 using Unity.Collections;
 using UnityEngine.XR.ARSubsystems;
 
+namespace ARKitCollaborator.Samples {
+
 public enum ObjectType: Int16 {
     Cube,
     Sphere,
@@ -187,4 +189,6 @@ public static class ObjectDataSerializer {
 
         return checksum;
     }
+}
+
 }

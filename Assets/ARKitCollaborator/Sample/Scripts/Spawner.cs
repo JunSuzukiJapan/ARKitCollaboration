@@ -11,8 +11,9 @@ using Unity.iOS.Multipeer;
 using UnityEngine.XR.ARKit;
 #endif
 
-public class Spawner : MonoBehaviour
-{
+namespace ARKitCollaborator.Samples {
+
+public class Spawner : DeserializableObject {
     [SerializeField]
     private GameObject m_camera;
 
@@ -67,7 +68,7 @@ public class Spawner : MonoBehaviour
 #endif
     }
 
-    public bool TrySpawnReceivedData(NativeSlice<byte> bytes){
+    public override bool TryDeserialize(NativeSlice<byte> bytes){
         // Debug.LogFormat("received bytes length: {0}", bytes.Length);
 
         ObjectData data = ObjectDataSerializer.TryDeserialize(bytes);
@@ -105,4 +106,6 @@ public class Spawner : MonoBehaviour
 
         return true;
     }
+}
+
 }

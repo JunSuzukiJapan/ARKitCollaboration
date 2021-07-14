@@ -5,12 +5,14 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ARKitCollaborator
+namespace ARKitCollaborator.Samples
 {
-    public class CollaborationNetworkingIndicator : MonoBehaviour
-    {
+    public class CollaborationNetworkingIndicator : MonoBehaviour, IDataNotifier {
         [SerializeField]
         Image m_IncomingDataImage;
+
+        [SerializeField]
+        CollaborativeSession m_session;
 
         public Image incomingDataImage
         {
@@ -36,36 +38,42 @@ namespace ARKitCollaborator
             set { m_HasCollaborationDataImage = value; }
         }
 
-        static bool s_IncomingDataReceived;
+        bool m_IncomingDataReceived;
 
-        static bool s_OutgoingDataSent;
+        bool m_OutgoingDataSent;
 
-        static bool s_HasCollaborationData;
+        bool m_HasCollaborationData;
+
+        void Start(){
+            if(m_session != null){
+                m_session.notifier = this;
+            }
+        }
 
         void Update()
         {
-            m_IncomingDataImage.color = s_IncomingDataReceived ? Color.green : Color.red;
-            m_OutgoingDataImage.color = s_OutgoingDataSent ? Color.green : Color.red;
-            m_HasCollaborationDataImage.color = s_HasCollaborationData ? Color.green : Color.red;
+            m_IncomingDataImage.color = m_IncomingDataReceived ? Color.green : Color.red;
+            m_OutgoingDataImage.color = m_OutgoingDataSent ? Color.green : Color.red;
+            m_HasCollaborationDataImage.color = m_HasCollaborationData ? Color.green : Color.red;
 
-            s_IncomingDataReceived = false;
-            s_OutgoingDataSent = false;
-            s_HasCollaborationData = false;
+            m_IncomingDataReceived = false;
+            m_OutgoingDataSent = false;
+            m_HasCollaborationData = false;
         }
 
-        public static void NotifyIncomingDataReceived()
+        public void NotifyIncomingDataReceived()
         {
-            s_IncomingDataReceived = true;
+            m_IncomingDataReceived = true;
         }
 
-        public static void NotifyOutgoingDataSent()
+        public void NotifyOutgoingDataSent()
         {
-            s_OutgoingDataSent = true;
+            m_OutgoingDataSent = true;
         }
 
-        public static void NotifyHasCollaborationData()
+        public void NotifyHasCollaborationData()
         {
-            s_HasCollaborationData = true;
+            m_HasCollaborationData = true;
         }
     }
 }

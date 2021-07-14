@@ -6,44 +6,45 @@ using Unity.iOS.Multipeer;
 using UnityEngine.XR.ARKit;
 #endif
 
-namespace ARKitCollaborator
-{
+namespace ARKitCollaborator {
     [RequireComponent(typeof(ARSession))]
-    public class CollaborativeSession : MonoBehaviour
-    {
+    public class CollaborativeSession : MonoBehaviour {
         [SerializeField]
         [Tooltip("The name for this network service. It should be 15 characters or less and can contain ASCII, lowercase letters, numbers, and hyphens.")]
         string m_ServiceType;
 
         [SerializeField]
-        Spawner m_spawner;
+        DeserializableObject m_deserializable;
 
         /// <summary>
         /// The name for this network service.
         /// See <a href="https://developer.apple.com/documentation/multipeerconnectivity/mcnearbyserviceadvertiser">MCNearbyServiceAdvertiser</a>
         /// for the purpose of and restrictions on this name.
         /// </summary>
-        public string serviceType
-        {
+        public string serviceType {
             get => m_ServiceType;
             set => m_ServiceType = value;
         }
 
+        private IDataNotifier m_notifier;
+
+        public IDataNotifier notifier {
+            get => m_notifier;
+            set => m_notifier = value;
+        }
+
         ARSession m_ARSession;
 
-        void DisableNotSupported(string reason)
-        {
+        void DisableNotSupported(string reason) {
             enabled = false;
             // Debug.Log(reason);
             Debug.Log(reason);
         }
 
-        void OnEnable()
-        {
+        void OnEnable() {
     #if UNITY_IOS && !UNITY_EDITOR
             var subsystem = GetSubsystem();
-            if (!ARKitSessionSubsystem.supportsCollaboration || subsystem == null)
-            {
+            if (!ARKitSessionSubsystem.supportsCollaboration || subsystem == null) {
                 DisableNotSupported("Collaborative sessions require iOS 13.");
                 return;
             }
@@ -60,22 +61,19 @@ namespace ARKitCollaborator
 
         public MCSession Session { get {return m_MCSession; } }
 
-        ARKitSessionSubsystem GetSubsystem()
-        {
+        ARKitSessionSubsystem GetSubsystem() {
             if (m_ARSession == null)
                 return null;
 
             return m_ARSession.subsystem as ARKitSessionSubsystem;
         }
 
-        void Awake()
-        {
+        void Awake() {
             m_ARSession = GetComponent<ARSession>();
             m_MCSession = new MCSession(SystemInfo.deviceName, m_ServiceType);
         }
 
-        void OnDisable()
-        {
+        void OnDisable() {
             m_MCSession.Enabled = false;
 
             var subsystem = GetSubsystem();
@@ -83,30 +81,30 @@ namespace ARKitCollaborator
                 subsystem.collaborationRequested = false;
         }
 
-        void Update()
-        {
+        void Update() {
             var subsystem = GetSubsystem();
             if (subsystem == null)
                 return;
 
             // Check for new collaboration data
-            while (subsystem.collaborationDataCount > 0)
-            {
-                using (var collaborationData = subsystem.DequeueCollaborationData())
-                {
-                    CollaborationNetworkingIndicator.NotifyHasCollaborationData();
+            while (subsystem.collaborationDataCount > 0) {
+                using (var collaborationData = subsystem.DequeueCollaborationData()) {
+                    if(m_notifier != null){
+                        m_notifier.NotifyHasCollaborationData();
+                    }
 
                     if (m_MCSession.ConnectedPeerCount == 0)
                         continue;
 
                     using (var serializedData = collaborationData.ToSerialized())
-                    using (var data = NSData.CreateWithBytesNoCopy(serializedData.bytes))
-                    {
+                    using (var data = NSData.CreateWithBytesNoCopy(serializedData.bytes)) {
                         m_MCSession.SendToAllPeers(data, collaborationData.priority == ARCollaborationDataPriority.Critical
                             ? MCSessionSendDataMode.Reliable
                             : MCSessionSendDataMode.Unreliable);
 
-                        CollaborationNetworkingIndicator.NotifyOutgoingDataSent();
+                        if(m_notifier != null) {
+                            m_notifier.NotifyOutgoingDataSent();
+                        }
 
                         // Only log 'critical' data as 'optional' data tends to come every frame
                         if (collaborationData.priority == ARCollaborationDataPriority.Critical)
@@ -118,24 +116,20 @@ namespace ARKitCollaborator
             }
 
             // Check for incoming data
-            while (m_MCSession.ReceivedDataQueueSize > 0)
-            {
-                CollaborationNetworkingIndicator.NotifyIncomingDataReceived();
+            while (m_MCSession.ReceivedDataQueueSize > 0) {
+                if(m_notifier != null){
+                    m_notifier.NotifyIncomingDataReceived();
+                }
 
                 using (var data = m_MCSession.DequeueReceivedData()){
-                    if(m_spawner == null || (! m_spawner.TrySpawnReceivedData(data.Bytes))){
-                        using (var collaborationData = new ARCollaborationData(data.Bytes))
-                        {
-                            if (collaborationData.valid)
-                            {
+                    if(m_deserializable == null || (! m_deserializable.TryDeserialize(data.Bytes))){
+                        using (var collaborationData = new ARCollaborationData(data.Bytes)) {
+                            if (collaborationData.valid) {
                                 subsystem.UpdateWithCollaborationData(collaborationData);
-                                if (collaborationData.priority == ARCollaborationDataPriority.Critical)
-                                {
+                                if (collaborationData.priority == ARCollaborationDataPriority.Critical) {
                                     // Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 // Debug.Log($"Received {data.Bytes.Length} bytes from remote, but the collaboration data was not valid.");
                             }
                         }

@@ -560,6 +560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IncomingDataImage: {fileID: 2129958117}
+  m_session: {fileID: 1297001905}
   m_OutgoingDataImage: {fileID: 1989065128}
   m_HasCollaborationDataImage: {fileID: 2051619928}
 --- !u!1 &935465590
@@ -901,7 +902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ServiceType: ar-collaborator
-  m_spawner: {fileID: 1803126617}
+  m_deserializable: {fileID: 1803126617}
 --- !u!1 &1564081113
 GameObject:
   m_ObjectHideFlags: 0
