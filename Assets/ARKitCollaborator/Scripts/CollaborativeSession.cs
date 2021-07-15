@@ -26,12 +26,13 @@ namespace ARKitCollaborator {
             set => m_ServiceType = value;
         }
 
-        private IDataNotifier m_notifier;
+        public delegate void HasCollaborationDataHandler();
+        public delegate void OutgoingDataSentHandler();
+        public delegate void IncomingDataReceivedHandler();
 
-        public IDataNotifier notifier {
-            get => m_notifier;
-            set => m_notifier = value;
-        }
+        public HasCollaborationDataHandler OnHasCollaborationData;
+        public OutgoingDataSentHandler OnOutgoingDataSent;
+        public IncomingDataReceivedHandler OnIncomingDataReceived;
 
         ARSession m_ARSession;
 
@@ -89,8 +90,8 @@ namespace ARKitCollaborator {
             // Check for new collaboration data
             while (subsystem.collaborationDataCount > 0) {
                 using (var collaborationData = subsystem.DequeueCollaborationData()) {
-                    if(m_notifier != null){
-                        m_notifier.NotifyHasCollaborationData();
+                    if(OnHasCollaborationData != null){
+                        OnHasCollaborationData();
                     }
 
                     if (m_MCSession.ConnectedPeerCount == 0)
@@ -102,8 +103,8 @@ namespace ARKitCollaborator {
                             ? MCSessionSendDataMode.Reliable
                             : MCSessionSendDataMode.Unreliable);
 
-                        if(m_notifier != null) {
-                            m_notifier.NotifyOutgoingDataSent();
+                        if(OnOutgoingDataSent != null) {
+                            OnOutgoingDataSent();
                         }
 
                         // Only log 'critical' data as 'optional' data tends to come every frame
@@ -117,8 +118,8 @@ namespace ARKitCollaborator {
 
             // Check for incoming data
             while (m_MCSession.ReceivedDataQueueSize > 0) {
-                if(m_notifier != null){
-                    m_notifier.NotifyIncomingDataReceived();
+                if(OnIncomingDataReceived != null){
+                    OnIncomingDataReceived();
                 }
 
                 using (var data = m_MCSession.DequeueReceivedData()){

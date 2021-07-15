@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace ARKitCollaborator.Samples
 {
-    public class CollaborationNetworkingIndicator : MonoBehaviour, IDataNotifier {
+    public class CollaborationNetworkingIndicator : MonoBehaviour {
         [SerializeField]
         Image m_IncomingDataImage;
 
@@ -44,14 +44,23 @@ namespace ARKitCollaborator.Samples
 
         bool m_HasCollaborationData;
 
-        void Start(){
+        void OnEnable(){
             if(m_session != null){
-                m_session.notifier = this;
+                m_session.OnHasCollaborationData += NotifyHasCollaborationData;
+                m_session.OnOutgoingDataSent += NotifyOutgoingDataSent;
+                m_session.OnIncomingDataReceived += NotifyIncomingDataReceived;
             }
         }
 
-        void Update()
-        {
+        void OnDisable(){
+            if(m_session != null){
+                m_session.OnHasCollaborationData -= NotifyHasCollaborationData;
+                m_session.OnOutgoingDataSent -= NotifyOutgoingDataSent;
+                m_session.OnIncomingDataReceived -= NotifyIncomingDataReceived;
+            }
+        }
+
+        void Update() {
             m_IncomingDataImage.color = m_IncomingDataReceived ? Color.green : Color.red;
             m_OutgoingDataImage.color = m_OutgoingDataSent ? Color.green : Color.red;
             m_HasCollaborationDataImage.color = m_HasCollaborationData ? Color.green : Color.red;
@@ -61,18 +70,15 @@ namespace ARKitCollaborator.Samples
             m_HasCollaborationData = false;
         }
 
-        public void NotifyIncomingDataReceived()
-        {
+        void NotifyIncomingDataReceived() {
             m_IncomingDataReceived = true;
         }
 
-        public void NotifyOutgoingDataSent()
-        {
+        void NotifyOutgoingDataSent() {
             m_OutgoingDataSent = true;
         }
 
-        public void NotifyHasCollaborationData()
-        {
+        void NotifyHasCollaborationData() {
             m_HasCollaborationData = true;
         }
     }
