@@ -98,7 +98,6 @@ public class Spawner : DeserializableObject {
 
         switch(data.Type){
         case ObjectType.Cube:
-        case ObjectType.Sphere:
             Debug.LogFormat("Instantiate!!!   pos: {0}, rot: {1}, global pos: {2}, global rot: {3}", data.Position, data.Rotation, globalPos, globalRot);
             Instantiate(m_RemoteCubePrefab, globalPos, globalRot);
             break;
