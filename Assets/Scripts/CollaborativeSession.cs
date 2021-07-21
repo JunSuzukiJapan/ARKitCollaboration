@@ -38,7 +38,6 @@ namespace ARKitCollaborator {
 
         void DisableNotSupported(string reason) {
             enabled = false;
-            // Debug.Log(reason);
             Debug.Log(reason);
         }
 
@@ -128,10 +127,10 @@ namespace ARKitCollaborator {
                             if (collaborationData.valid) {
                                 subsystem.UpdateWithCollaborationData(collaborationData);
                                 if (collaborationData.priority == ARCollaborationDataPriority.Critical) {
-                                    // Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
+                                    Debug.Log($"Received {data.Bytes.Length} bytes of collaboration data.");
                                 }
                             } else {
-                                // Debug.Log($"Received {data.Bytes.Length} bytes from remote, but the collaboration data was not valid.");
+                                Debug.Log($"Received {data.Bytes.Length} bytes from remote, but the collaboration data was not valid.");
                             }
                         }
                     }

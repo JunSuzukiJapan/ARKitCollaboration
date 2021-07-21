@@ -39,66 +39,42 @@ public class Spawner : DeserializableObject {
             Quaternion rot = m_camera.transform.rotation;
             ARAnchor anchor = m_anchorCreator.MainAnchor;
 
-            Debug.LogFormat("object pos: {0}, rot: {1}", pos, rot);
             Instantiate(m_LocalCubePrefab, pos, rot);
 
             //
             // Send to Peers
             //
             MCSession session = m_CollaborativeSession.Session;
-            Debug.LogFormat("mcsession: {0}", session);
             if (session != null && session.ConnectedPeerCount > 0){
                 // ARAnchor からの相対座標を求める。
                 var localPos = anchor.transform.InverseTransformPoint(pos);
                 var localRot = rot * Quaternion.Inverse(anchor.transform.rotation);
 
                 SerializedObjectData serializedObjectData = ObjectDataSerializer.Serialize(anchor.trackableId, ObjectType.Cube, localPos, localRot);
-                Debug.LogFormat("serializedData: {0}", serializedObjectData);
                 NativeArray<byte> ary = serializedObjectData.GetNativeArray();
                 var data = NSData.CreateWithBytesNoCopy(ary);
-                Debug.LogFormat("data: {0}", data);
 
                 session.SendToAllPeers(data, MCSessionSendDataMode.Reliable);
-
-                Debug.Log($"Sent {data.Length} bytes of collaboration data.");
-                Debug.LogFormat("  anchor pos: {0}, rot: {1}", anchor.transform.position, anchor.transform.rotation);
-                Debug.LogFormat("sent. pos: {0}, rot: {1}, local pos: {2}, local rot: {3}", pos, rot, localPos, localRot);
             }
         }
 #endif
     }
 
     public override bool TryDeserialize(NativeSlice<byte> bytes){
-        // Debug.LogFormat("received bytes length: {0}", bytes.Length);
-
         ObjectData data = ObjectDataSerializer.TryDeserialize(bytes);
         if(data == null){
-            // Debug.LogFormat("Deserialized data is null.");
             return false;
         }
-        Debug.LogFormat("received data Parent: {0}", data.Id.ToString());
-        Debug.LogFormat("received data Type: {0}, pos: {1}, rot: {2}", data.Type, data.Position, data.Rotation);
 
         ARAnchor anchor = m_anchorManager.GetAnchor(data.Id);
-        Debug.LogFormat("anchor: {0}", anchor);
-        if(anchor != null){
-            Debug.LogFormat("trackable id: {0} FOUND", anchor.trackableId);
-            Debug.LogFormat("  anchor pos: {0}, rot: {1}", anchor.transform.position, anchor.transform.rotation);
-        }else{
-            Debug.LogFormat("no anchor. no id");
-            foreach(var trackable in m_anchorManager.trackables){
-                Debug.LogFormat(" - trackable id: {0}", trackable.trackableId);
-            }
-        }
-
         if(anchor == null) return true;
 
+        // ARAnchorからの相対座標をワールド座標に変換する。
         var globalPos = anchor.transform.TransformPoint(data.Position);
         var globalRot = anchor.transform.rotation * data.Rotation;
 
         switch(data.Type){
         case ObjectType.Cube:
-            Debug.LogFormat("Instantiate!!!   pos: {0}, rot: {1}, global pos: {2}, global rot: {3}", data.Position, data.Rotation, globalPos, globalRot);
             Instantiate(m_RemoteCubePrefab, globalPos, globalRot);
             break;
         }
