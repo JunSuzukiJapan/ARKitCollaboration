@@ -13,9 +13,6 @@ namespace ARKitCollaborator {
         [Tooltip("The name for this network service. It should be 15 characters or less and can contain ASCII, lowercase letters, numbers, and hyphens.")]
         string m_ServiceType;
 
-        [SerializeField]
-        DeserializableObject m_deserializable;
-
         /// <summary>
         /// The name for this network service.
         /// See <a href="https://developer.apple.com/documentation/multipeerconnectivity/mcnearbyserviceadvertiser">MCNearbyServiceAdvertiser</a>

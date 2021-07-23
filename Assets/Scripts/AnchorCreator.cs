@@ -24,6 +24,9 @@ namespace ARKitCollaborator
         [SerializeField]
         float m_minDistance = 0.2f;
 
+        public delegate void AnchorCreatedHandler(ARAnchor anchor, ARRaycastHit hit);
+        public event AnchorCreatedHandler OnAnchorCreated;
+
         ARAnchor m_Anchor;
 
         public GameObject prefab
@@ -42,16 +45,6 @@ namespace ARKitCollaborator
             m_AnchorManager = GetComponent<ARAnchorManager>();
         }
 
-        void SetAnchorText(ARAnchor anchor, string text)
-        {
-            var canvasTextManager = anchor.GetComponent<CanvasTextManager>();
-            if (canvasTextManager)
-            {
-                canvasTextManager.text = text;
-                canvasTextManager.textID = anchor.trackableId.ToString();
-            }
-        }
-
         ARAnchor CreateAnchor(in ARRaycastHit hit)
         {
             ARAnchor anchor = null;
@@ -67,7 +60,9 @@ namespace ARKitCollaborator
                     m_AnchorManager.anchorPrefab = prefab;
                     anchor = m_AnchorManager.AttachAnchor(plane, hit.pose);
                     m_AnchorManager.anchorPrefab = oldPrefab;
-                    SetAnchorText(anchor, $"Attached to plane {plane.trackableId}");
+                    if(OnAnchorCreated != null){
+                        OnAnchorCreated(anchor, hit);
+                    }
                     return anchor;
                 }
             }
@@ -85,7 +80,9 @@ namespace ARKitCollaborator
                 anchor = gameObject.AddComponent<ARAnchor>();
             }
 
-            SetAnchorText(anchor, $"Anchor (from {hit.hitType})");
+            if(OnAnchorCreated != null){
+                OnAnchorCreated(anchor, hit);
+            }
 
             return anchor;
         }
@@ -111,17 +108,10 @@ namespace ARKitCollaborator
 
                 // Create a new anchor
                 m_Anchor = CreateAnchor(hit);
-                if (m_Anchor)
-                {
-                    // Remember the anchor so we can remove it later.
-                    m_Anchors.Add(m_Anchor);
-                }
             }
         }
 
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
-
-        List<ARAnchor> m_Anchors = new List<ARAnchor>();
 
         ARRaycastManager m_RaycastManager;
 

@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 using UnityEngine.XR.ARFoundation;
 
-namespace ARKitCollaborator
+namespace ARKitCollaborator.Samples
 {
     public class CanvasTextManager : MonoBehaviour
     {

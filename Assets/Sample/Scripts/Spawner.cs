@@ -13,7 +13,7 @@ using UnityEngine.XR.ARKit;
 
 namespace ARKitCollaborator.Samples {
 
-public class Spawner : DeserializableObject {
+public class Spawner : DeserializableObject, IAnchorCreatedHandler {
     [SerializeField]
     private GameObject m_camera;
 
@@ -80,6 +80,35 @@ public class Spawner : DeserializableObject {
         }
 
         return true;
+    }
+
+    void OnEnable(){
+        if(m_anchorCreator != null){
+            m_anchorCreator.OnAnchorCreated += AnchorCreatedHandler;
+        }
+    }
+
+    void OnDisable(){
+        if(m_anchorCreator != null){
+            m_anchorCreator.OnAnchorCreated -= AnchorCreatedHandler;
+        }
+    }
+
+    void SetAnchorText(ARAnchor anchor, string text){
+        var canvasTextManager = anchor.GetComponent<CanvasTextManager>();
+        if (canvasTextManager)
+        {
+            canvasTextManager.text = text;
+            canvasTextManager.textID = anchor.trackableId.ToString();
+        }
+    }
+
+    public void AnchorCreatedHandler(ARAnchor anchor, ARRaycastHit hit){
+        if(hit.trackable is ARPlane plane){
+            SetAnchorText(anchor, $"Attached to plane {plane.trackableId}");
+        }else{
+            SetAnchorText(anchor, $"Anchor (from {hit.hitType})");
+        }
     }
 }
 
