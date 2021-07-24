@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 
-namespace ARKitCollaborator {
+namespace ARKitCollaborator.Samples {
 
 public class DeserializableObject : MonoBehaviour, ITryDeserializable {
     public virtual bool TryDeserialize(NativeSlice<byte> bytes){
