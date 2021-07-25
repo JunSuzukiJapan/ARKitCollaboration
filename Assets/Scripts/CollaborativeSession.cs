@@ -13,6 +13,11 @@ namespace ARKitCollaborator {
         [Tooltip("The name for this network service. It should be 15 characters or less and can contain ASCII, lowercase letters, numbers, and hyphens.")]
         string m_ServiceType;
 
+        [SerializeField]
+        GameObject m_deserializer;
+
+        ITryDeserializable m_tryDeserializable;
+
         /// <summary>
         /// The name for this network service.
         /// See <a href="https://developer.apple.com/documentation/multipeerconnectivity/mcnearbyserviceadvertiser">MCNearbyServiceAdvertiser</a>
@@ -68,6 +73,9 @@ namespace ARKitCollaborator {
         void Awake() {
             m_ARSession = GetComponent<ARSession>();
             m_MCSession = new MCSession(SystemInfo.deviceName, m_ServiceType);
+
+            m_tryDeserializable = m_deserializer.GetComponent<ITryDeserializable>();
+            Debug.LogFormat("m_tryDeserializable: {0}", m_tryDeserializable);
         }
 
         void OnDisable() {
@@ -106,7 +114,7 @@ namespace ARKitCollaborator {
                         // Only log 'critical' data as 'optional' data tends to come every frame
                         if (collaborationData.priority == ARCollaborationDataPriority.Critical)
                         {
-                            // Debug.Log($"Sent {data.Length} bytes of collaboration data.");
+                            Debug.Log($"Sent {data.Length} bytes of collaboration data.");
                         }
                     }
                 }
@@ -119,7 +127,7 @@ namespace ARKitCollaborator {
                 }
 
                 using (var data = m_MCSession.DequeueReceivedData()){
-                    if(m_deserializable == null || (! m_deserializable.TryDeserialize(data.Bytes))){
+                    if(m_tryDeserializable == null || (! m_tryDeserializable.TryDeserialize(data.Bytes))){
                         using (var collaborationData = new ARCollaborationData(data.Bytes)) {
                             if (collaborationData.valid) {
                                 subsystem.UpdateWithCollaborationData(collaborationData);

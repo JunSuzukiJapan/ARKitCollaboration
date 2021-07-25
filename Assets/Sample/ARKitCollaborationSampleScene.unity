@@ -902,7 +902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ServiceType: ar-collaborator
-  m_deserializable: {fileID: 1803126617}
+  m_deserializer: {fileID: 1803126616}
 --- !u!1 &1564081113
 GameObject:
   m_ObjectHideFlags: 0

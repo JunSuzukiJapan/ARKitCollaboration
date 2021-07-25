@@ -13,7 +13,7 @@ using UnityEngine.XR.ARKit;
 
 namespace ARKitCollaborator.Samples {
 
-public class Spawner : DeserializableObject, IAnchorCreatedHandler {
+public class Spawner : MonoBehaviour, IAnchorCreatedHandler, ITryDeserializable {
     [SerializeField]
     private GameObject m_camera;
 
@@ -60,7 +60,7 @@ public class Spawner : DeserializableObject, IAnchorCreatedHandler {
 #endif
     }
 
-    public override bool TryDeserialize(NativeSlice<byte> bytes){
+    public bool TryDeserialize(NativeSlice<byte> bytes){
         ObjectData data = ObjectDataSerializer.TryDeserialize(bytes);
         if(data == null){
             return false;

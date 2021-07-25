@@ -7,7 +7,7 @@ namespace ARKitCollaborator.Samples {
 
 public enum ObjectType: Int16 {
     Cube,
-    Sphere,
+    // Sphere,
 }
 
 public class ObjectData {
