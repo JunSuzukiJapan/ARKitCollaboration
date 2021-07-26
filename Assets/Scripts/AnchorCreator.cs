@@ -9,12 +9,10 @@ using Unity.iOS.Multipeer;
 using UnityEngine.XR.ARKit;
 #endif
 
-namespace ARKitCollaborator
-{
+namespace ARKitCollaborator {
     [RequireComponent(typeof(ARAnchorManager))]
     [RequireComponent(typeof(ARRaycastManager))]
-    public class AnchorCreator : MonoBehaviour
-    {
+    public class AnchorCreator : MonoBehaviour {
         [SerializeField]
         GameObject m_Prefab;
 
@@ -29,8 +27,7 @@ namespace ARKitCollaborator
 
         ARAnchor m_Anchor;
 
-        public GameObject prefab
-        {
+        public GameObject prefab {
             get => m_Prefab;
             set => m_Prefab = value;
         }
@@ -39,22 +36,18 @@ namespace ARKitCollaborator
             get => m_Anchor;
         }
 
-        void Awake()
-        {
+        void Awake() {
             m_RaycastManager = GetComponent<ARRaycastManager>();
             m_AnchorManager = GetComponent<ARAnchorManager>();
         }
 
-        ARAnchor CreateAnchor(in ARRaycastHit hit)
-        {
+        ARAnchor CreateAnchor(in ARRaycastHit hit) {
             ARAnchor anchor = null;
 
             // If we hit a plane, try to "attach" the anchor to the plane
-            if (hit.trackable is ARPlane plane)
-            {
+            if (hit.trackable is ARPlane plane) {
                 var planeManager = GetComponent<ARPlaneManager>();
-                if (planeManager)
-                {
+                if (planeManager) {
                     Debug.Log("Creating anchor attachment.");
                     var oldPrefab = m_AnchorManager.anchorPrefab;
                     m_AnchorManager.anchorPrefab = prefab;
@@ -75,20 +68,18 @@ namespace ARKitCollaborator
 
             // Make sure the new GameObject has an ARAnchor component
             anchor = gameObject.GetComponent<ARAnchor>();
-            if (anchor == null)
-            {
+            if (anchor == null) {
                 anchor = gameObject.AddComponent<ARAnchor>();
             }
 
-            if(OnAnchorCreated != null){
+            if(OnAnchorCreated != null) {
                 OnAnchorCreated(anchor, hit);
             }
 
             return anchor;
         }
 
-        void Update()
-        {
+        void Update() {
             if(m_Anchor != null) return;
 
             // Raycast against planes and feature points

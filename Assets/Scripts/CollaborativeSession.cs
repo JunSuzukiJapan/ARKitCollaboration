@@ -94,7 +94,7 @@ namespace ARKitCollaborator {
             // Check for new collaboration data
             while (subsystem.collaborationDataCount > 0) {
                 using (var collaborationData = subsystem.DequeueCollaborationData()) {
-                    if(OnHasCollaborationData != null){
+                    if(OnHasCollaborationData != null) {
                         OnHasCollaborationData();
                     }
 
@@ -112,8 +112,7 @@ namespace ARKitCollaborator {
                         }
 
                         // Only log 'critical' data as 'optional' data tends to come every frame
-                        if (collaborationData.priority == ARCollaborationDataPriority.Critical)
-                        {
+                        if (collaborationData.priority == ARCollaborationDataPriority.Critical) {
                             Debug.Log($"Sent {data.Length} bytes of collaboration data.");
                         }
                     }
@@ -143,8 +142,7 @@ namespace ARKitCollaborator {
             }
         }
 
-        void OnDestroy()
-        {
+        void OnDestroy() {
             m_MCSession.Dispose();
         }
     #endif

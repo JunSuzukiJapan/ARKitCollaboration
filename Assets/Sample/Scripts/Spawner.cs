@@ -37,7 +37,7 @@ public class Spawner : MonoBehaviour, IAnchorCreatedHandler, ITryDeserializable 
         if(m_LocalCubePrefab != null && m_camera != null && m_anchorCreator != null && m_anchorCreator.MainAnchor != null){
             Vector3 pos = m_camera.transform.position;
             Quaternion rot = m_camera.transform.rotation;
-            ARAnchor anchor = m_anchorCreator.MainAnchor;
+            ARAnchor anchor = m_anchorCreator.MainAnchor; // 基準となるアンカーを取得
 
             Instantiate(m_LocalCubePrefab, pos, rot);
 
