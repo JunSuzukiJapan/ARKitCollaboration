@@ -67,7 +67,7 @@ public class Spawner : MonoBehaviour, IAnchorCreatedHandler, ITryDeserializable 
         }
 
         ARAnchor anchor = m_anchorManager.GetAnchor(data.Id);
-        if(anchor == null) return true;
+        if(anchor == null) return false;
 
         // ARAnchorからの相対座標をワールド座標に変換する。
         var globalPos = anchor.transform.TransformPoint(data.Position);
